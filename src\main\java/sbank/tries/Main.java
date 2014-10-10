@@ -102,7 +102,7 @@ public class Main {
 		}
 
 		/**
-		 * Recursive implementation for the insert with updation of recurrence
+		 * Recursive implementation for the insert with update of recurrence
 		 * when the same account number is inserted again.
 		 * 
 		 * @param x
