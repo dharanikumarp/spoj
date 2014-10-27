@@ -2,14 +2,14 @@ package sbank.tries;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 public class Main {
 
 	private static final int ACC_NUM_SIZE = 26;
 	private static final int ACC_NUM_SIZE_WITH_FORMATTING = ACC_NUM_SIZE + 6;
+
+	private static final boolean PRINT_TIMINGS = false;
 
 	/**
 	 * @param args
@@ -19,18 +19,20 @@ public class Main {
 		BufferedReader br = new BufferedReader(
 				new InputStreamReader(System.in), 16384);
 
-		//List<String> timings = new ArrayList<String>();
+		// Buffer to capture the timings.
+		StringBuilder timingsLogger = new StringBuilder();
 
 		byte numTestCases = Byte.parseByte(br.readLine());
 
 		for (byte i = 0; i < numTestCases; i++) {
 			int numAccounts = Integer.parseInt(br.readLine());
-			// timings.add("iteration i " + i + " numAccounts " + numAccounts);
+
+			timingsLogger.append(
+					"iteration i " + i + ", numAccounts " + numAccounts)
+					.append('\n');
+			long startTime = System.currentTimeMillis();
 
 			AccountsTrie trie = new Main().new AccountsTrie();
-
-			// long startTime = System.currentTimeMillis();
-
 			for (int j = 0; j < numAccounts; j++) {
 				String accNum = br.readLine();
 				trie.insert(accNum);
@@ -38,49 +40,50 @@ public class Main {
 			if (i != numTestCases - 1) {
 				br.readLine();
 			}
-			// long endTime = System.currentTimeMillis();
 
-			// timings.add("Time to parse and insert strings "
-			// + (endTime - startTime));
+			long endTime = System.currentTimeMillis();
+			timingsLogger
+					.append("Time to parse and insert strings "
+							+ (endTime - startTime)).append('\n');
 
-			// startTime = System.currentTimeMillis();
-			List<String> allAccounts = trie.accountsWithRecurrence();
+			startTime = System.currentTimeMillis();
+			Queue<String> allAccounts = trie.accountsWithRecurrence();
 			int size = allAccounts.size();
 
-			//timings.add("size of all accounts : " + size);
+			timingsLogger.append("size of all accounts : " + size).append('\n');
 
 			StringBuilder sb = new StringBuilder(size * (32 + 2));
-			for (int k = 0; k < size; k++) {
-				sb.append(allAccounts.get(k) + "\n");
+
+			while (!allAccounts.isEmpty()) {
+				sb.append(allAccounts.dequeue()).append('\n');
 			}
 
 			System.out.print(sb.toString());
-			System.out.flush();
 
 			if (i != numTestCases - 1) {
 				System.out.println();
 			}
-			// endTime = System.currentTimeMillis();
-
-			// timings.add("Time to print the strings " + (endTime -
-			// startTime));
+			endTime = System.currentTimeMillis();
+			timingsLogger.append(
+					"Time to print the strings " + (endTime - startTime))
+					.append('\n');
 		}
 		br.close();
 
-		// System.err.println("timings " + timings);
+		if (PRINT_TIMINGS) {
+			System.out.println("timings " + timingsLogger.toString());
+		}
 	}
 
 	public class AccountsTrie {
 
-		// To facilitate eager instantiation of ArrayList with initialCapacity
-		// so as to prevent reallocation and copy of array elements when the
-		// ArrayList grows
+		// To track the size of the trie (number of keys)
 		private int size;
 
 		private Node root;
 
 		// 11 because we can include space character as part of sorting at the
-		// RADIX location.
+		// RADIX location in the array.
 		public static final int RADIX = 11;
 
 		public static final int ASCII_CODE_ZERO = 48;
@@ -131,8 +134,8 @@ public class Main {
 		/**
 		 * @return the {@link Iterable} of sorted account identifiers
 		 */
-		public List<String> accountsWithRecurrence() {
-			List<String> list = new ArrayList<String>(size);
+		public Queue<String> accountsWithRecurrence() {
+			Queue<String> list = new Queue<String>();
 			if (root != null) {
 				collect(root, list, new StringBuilder(
 						ACC_NUM_SIZE_WITH_FORMATTING));
@@ -147,7 +150,7 @@ public class Main {
 		 * @param strings
 		 * @param prefix
 		 */
-		private void collect(Node x, List<String> strings, StringBuilder prefix) {
+		private void collect(Node x, Queue<String> strings, StringBuilder prefix) {
 			if (x.recurrence == 0) {
 				for (int i = 0; i < x.links.length; i++) {
 					if (x.links[i] != null) {
@@ -162,9 +165,13 @@ public class Main {
 				}
 			} else {
 				prefix.append(x.recurrence);
-				strings.add(prefix.toString());
+				strings.enqueue(prefix.toString());
 				prefix.deleteCharAt(prefix.length() - 1);
 			}
+		}
+
+		public int getSize() {
+			return this.size;
 		}
 	}
 
