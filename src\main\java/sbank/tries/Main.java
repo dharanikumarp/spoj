@@ -19,18 +19,18 @@ public class Main {
 		BufferedReader br = new BufferedReader(
 				new InputStreamReader(System.in), 16384);
 
+		long startTime, endTime;
 		// Buffer to capture the timings.
-		StringBuilder timingsLogger = new StringBuilder();
+		StringBuilder timingsLogger = new StringBuilder(1024);
 
 		byte numTestCases = Byte.parseByte(br.readLine());
 
 		for (byte i = 0; i < numTestCases; i++) {
 			int numAccounts = Integer.parseInt(br.readLine());
 
-			timingsLogger.append(
-					"iteration i " + i + ", numAccounts " + numAccounts)
-					.append('\n');
-			long startTime = System.currentTimeMillis();
+			timingsLogger.append("iteration ").append(i)
+					.append(", numAccounts ").append(numAccounts).append('\n');
+			startTime = System.currentTimeMillis();
 
 			AccountsTrie trie = new Main().new AccountsTrie();
 			for (int j = 0; j < numAccounts; j++) {
@@ -41,16 +41,16 @@ public class Main {
 				br.readLine();
 			}
 
-			long endTime = System.currentTimeMillis();
-			timingsLogger
-					.append("Time to parse and insert strings "
-							+ (endTime - startTime)).append('\n');
+			endTime = System.currentTimeMillis();
+			timingsLogger.append("Time to parse and insert strings ")
+					.append(endTime - startTime).append('\n');
 
 			startTime = System.currentTimeMillis();
 			Queue<String> allAccounts = trie.accountsWithRecurrence();
 			int size = allAccounts.size();
 
-			timingsLogger.append("size of all accounts : " + size).append('\n');
+			timingsLogger.append("size of all accounts : ").append(size)
+					.append('\n');
 
 			StringBuilder sb = new StringBuilder(size * (32 + 2));
 
@@ -64,9 +64,8 @@ public class Main {
 				System.out.println();
 			}
 			endTime = System.currentTimeMillis();
-			timingsLogger.append(
-					"Time to print the strings " + (endTime - startTime))
-					.append('\n');
+			timingsLogger.append("Time to print the strings ")
+					.append(endTime - startTime).append('\n');
 		}
 		br.close();
 
@@ -224,10 +223,11 @@ public class Main {
 			last = new Node<Item>();
 			last.item = item;
 			last.next = null;
-			if (isEmpty())
+			if (isEmpty()) {
 				first = last;
-			else
+			} else {
 				oldlast.next = last;
+			}
 			N++;
 		}
 
@@ -245,8 +245,9 @@ public class Main {
 			Item item = first.item;
 			first = first.next;
 			N--;
-			if (isEmpty())
+			if (isEmpty()) {
 				last = null; // to avoid loitering
+			}
 			return item;
 		}
 	}
